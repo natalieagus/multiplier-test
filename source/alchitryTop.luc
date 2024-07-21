@@ -12,7 +12,7 @@ module alchitryTop (
 ) {
     
     sig rst                 // reset signal
-    // multiplier mul;
+    multiplier mul;
     
     .clk(clk) {
         // The reset conditioner is used to synchronize the reset signal to the FPGA
@@ -32,9 +32,9 @@ module alchitryTop (
         ioSeg = 8hFF
         ioSel = 4hF
         
-        // mul.a = c{24h0, ioDip[0]}
-        // mul.b = c{24h0, ioDip[1]}
-        // ioLed[0] = mul.mul[7:0];
+        mul.a = c{24h0, ioDip[0]}
+        mul.b = c{24h0, ioDip[1]}
+        ioLed[0] = mul.mul[7:0];
         
         // this one works fine, 16 bit multiplication 
         // ioLed[0] = c{ioDip[1], ioDip[0]} * c{ioDip[1], ioDip[0]}
