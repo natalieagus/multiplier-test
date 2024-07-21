@@ -1,0 +1,60 @@
+module multiplier (
+    input a[32],
+    input b[32],
+    output mul[32],
+) {
+    
+    // simulation won't run with 496 for 32 bits
+    fa fa[496]
+    sig current_row_fa_index[$clog2(496)]
+    sig previous_row_fa_index[$clog2(496)]
+    
+    
+    always {
+        
+        // LSB out
+        mul[0] = b[0] & a[0]
+        
+        // second row, SIZE-1 columns
+        repeat (i, 31){ 
+            fa.a[i] = a[i] & b[1]
+            fa.b[i] = a[i+1] & b[0]
+            if (i == 0){
+                fa.cin[i] = b0
+            }
+            else{ 
+                fa.cin[i] = fa.cout[i-1]; 
+            }
+        }
+        
+        previous_row_fa_index = 0
+        current_row_fa_index = 31 // was 31
+        
+        // bit 1 out
+        mul[1] = fa.s[previous_row_fa_index]
+        
+        repeat (i, 29, 2){ // third row, stop at second last row (row 30), was 29
+            repeat (j, 32-i){ // column, was 32-i
+                fa.a[current_row_fa_index+j] = a[j] & b[i]
+                fa.b[current_row_fa_index+j] = fa.s[previous_row_fa_index+1+j]
+                if (j == 0){ // set the first fa ci in the row to be 0
+                    fa.cin[current_row_fa_index+j] = b0
+                }
+                else{
+                    fa.cin[current_row_fa_index+j] = fa.cout[current_row_fa_index+j-1]
+                }
+            } 
+            previous_row_fa_index = current_row_fa_index
+            current_row_fa_index = current_row_fa_index + 32-i 
+            mul[i] = fa.s[previous_row_fa_index]
+        }
+        
+        // MSB out, this can be combined with the for-loop above
+        // but separated for teaching purposes
+        fa.a[495] = a[0] & b[31] 
+        fa.b[495] = fa.s[494]
+        fa.cin[495] = b0
+        mul[31] = fa.s[495]
+        
+    }
+}
